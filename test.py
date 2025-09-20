@@ -1,7 +1,8 @@
 from icecream import ic
 import requests
-from input_format import CustomInputFormat
-from random_datas import generate_data
+from .input_format import CustomInputFormat
+from .random_datas import generate_data
+import random
 
 
 
@@ -70,30 +71,39 @@ class TestFastAPIRoutes(__TestFastAPIRoutesInit):
 
     def __get_field_data(self,schema_name:str):
         data={}
-        field_names=list(self.infos['components']['schemas'][schema_name]['properties'].keys())
+        print('schema name : ',schema_name)
+        field_base_query=self.infos['components']['schemas'][schema_name]
+        if field_names:=field_base_query.get('properties',None):
+            field_names=list(field_names.keys())
 
-        for field_name in field_names:
-            print(schema_name,field_name)
-            field=self.infos['components']['schemas'][schema_name]['properties'][field_name]
-            value=None
-            if datatype:=field.get('type',None):
-                item=field.get('items',{})
-                item_type=None
+            for field_name in field_names:
+                print(schema_name,field_name)
+                field=field_base_query['properties'][field_name]
+                value=None
+                if datatype:=field.get('type',None):
+                    item=field.get('items',{})
+                    item_type=None
 
-                if item.get('type',None):
-                    item_type=item['type']
-                    
-                elif ref_schema_name:=item.get('$ref',None):
-                    ref_schema_name=ref_schema_name.split('/')[-1]
-                    item_type=self.__get_field_data(schema_name=ref_schema_name)
+                    if item.get('type',None):
+                        item_type=item['type']
+                        
+                    elif ref_schema_name:=item.get('$ref',None):
+                        ref_schema_name=ref_schema_name.split('/')[-1]
+                        item_type=self.__get_field_data(schema_name=ref_schema_name)
 
-                value=generate_data(datatype=datatype,items_type=item_type)
-            
-            else:
-                if ref2_schema_name:=field.get('$ref',None):
-                    ref2_schema_name=ref2_schema_name.split('/')[-1]
-                    value=self.__get_field_data(ref2_schema_name)
-            data[field_name]=value
+                    value=generate_data(datatype=datatype,items_type=item_type)
+                
+                else:
+                    if ref2_schema_name:=field.get('$ref',None):
+                        ref2_schema_name=ref2_schema_name.split('/')[-1]
+                        value=self.__get_field_data(ref2_schema_name)
+                data[field_name]=value
+        else:
+            print('gok gok',field_names)
+            value=random.choice(field_base_query['enum'])
+            print(value)
+            return value
+        
         return data
 
     def start_test(self):
