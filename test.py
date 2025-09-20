@@ -141,7 +141,8 @@ class TestFastAPIRoutes(__TestFastAPIRoutesInit):
             else:
                 print('unchecked routes :',path)
 
-test=TestFastAPIRoutes()
-print(test.start_test())
+if __name__=='__main__':
+    test=TestFastAPIRoutes()
+    print(test.start_test())
 
  
