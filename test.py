@@ -1,11 +1,8 @@
-from icecream import ic
 import requests
 from .input_format import CustomInputFormat
 from .random_datas import generate_data
 import random
-
-
-
+from .terminal_text import console,log_request
 
 
 class __TestFastAPIRoutesInit:
@@ -18,7 +15,6 @@ class __TestFastAPIRoutesInit:
         self.headers=headers
         self.routes_tocheck=routes_tocheck
         self.routes_touncheck=routes_touncheck
-        print(self.infos)
 
 
 class TestFastAPIRoutes(__TestFastAPIRoutesInit):
@@ -33,7 +29,6 @@ class TestFastAPIRoutes(__TestFastAPIRoutesInit):
                 if self.custom_inputs['headers']!={}:
                     headers=self.custom_inputs['headers']
 
-        print(headers)
 
         if data=={}:
             data=None
@@ -52,10 +47,9 @@ class TestFastAPIRoutes(__TestFastAPIRoutesInit):
 
         if self.base_url[-1]=='/':
             self.base_url=self.base_url[0:-1]
-            print(self.base_url)
 
         url=f"{self.base_url}{path}"
-        # print(f"method : {method} url : {url} data : {data} json : {json} formdata : {form_data} param : {param}")
+        # (f"method : {method} url : {url} data : {data} json : {json} formdata : {form_data} param : {param}")
         if method=='POST':
             response=requests.post(url,json=json,data=form_data,params=param,headers=self.headers)
         elif method=='PUT':
@@ -64,20 +58,19 @@ class TestFastAPIRoutes(__TestFastAPIRoutesInit):
             response=requests.delete(url,json=json,data=form_data,params=param,headers=headers)
         elif method=='GET':
             response=requests.get(url,json=json,data=form_data,params=param,headers=headers)
-        ic(method,url,data,response.status_code,':',response.json())
+        # ic(method,url,data,response.status_code,':',response.json())
+        log_request(method=method,path=url,status=response.status_code,response=response.json())
         return response
 
 
 
     def __get_field_data(self,schema_name:str):
         data={}
-        print('schema name : ',schema_name)
         field_base_query=self.infos['components']['schemas'][schema_name]
         if field_names:=field_base_query.get('properties',None):
             field_names=list(field_names.keys())
 
             for field_name in field_names:
-                print(schema_name,field_name)
                 field=field_base_query['properties'][field_name]
                 value=None
                 if datatype:=field.get('type',None):
@@ -99,19 +92,17 @@ class TestFastAPIRoutes(__TestFastAPIRoutesInit):
                         value=self.__get_field_data(ref2_schema_name)
                 data[field_name]=value
         else:
-            print('gok gok',field_names)
             value=random.choice(field_base_query['enum'])
-            print(value)
             return value
         
         return data
 
     def start_test(self):
-        
+        console.print("\n[bold]-------------------- FASTAPI TESTING BY DE-BUGGERS--------------------------------------------",style="#00ff00")
         paths=self.routes_tocheck
         if paths==[]:
             paths=list(self.infos['paths'].keys())
-        print(paths)
+        console.print(f"\n[bold]Paths to test -> : {paths}",style='magenta')
 
         for path in paths:
             if path not in self.routes_touncheck:
@@ -132,7 +123,6 @@ class TestFastAPIRoutes(__TestFastAPIRoutesInit):
                                 isfor_json=False
                             else:
                                 schema=json_schema
-                            print(schema)
                             schema_name=schema['schema']['$ref'].split('/')[-1]
                             datas=self.__get_field_data(schema_name=schema_name)
                             data=datas
@@ -141,10 +131,7 @@ class TestFastAPIRoutes(__TestFastAPIRoutesInit):
                             isfor_query=True
                             for param_name in param_names:
                                 datatype=param_name['schema']
-                                print('from param name :', datatype.get('items',{'type':None})['type'])
                                 data[param_name['name']]=generate_data(datatype=datatype.get('type',None),items_type=datatype.get('items',{'type':None})['type'])
-                                print(datatype)
-                        print(data)
 
                         self.__send_requests(method.upper(),path,data,isfor_params=isfor_query,isfor_json=isfor_json)
                         
@@ -155,6 +142,6 @@ class TestFastAPIRoutes(__TestFastAPIRoutesInit):
 
 if __name__=='__main__':
     test=TestFastAPIRoutes()
-    print(test.start_test())
+    (test.start_test())
 
  

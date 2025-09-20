@@ -10,7 +10,6 @@ def generate_data(datatype,items_type:Any=None):
         return round(random.uniform(1,1000),2)
     elif datatype=='array':
         data=[]
-        print('datatype',datatype,'itemtype',items_type)
         if items_type!=None:
             for _ in range(5):
                 if isinstance(items_type,str):
