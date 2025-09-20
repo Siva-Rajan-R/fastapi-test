@@ -61,9 +61,9 @@ class TestFastAPIRoutes(__TestFastAPIRoutesInit):
         elif method=='PUT':
             response=requests.put(url,json=json,data=form_data,params=param,headers=headers)
         elif method=='DELETE':
-            response=requests.delete(url,params=param,headers=headers)
+            response=requests.delete(url,json=json,data=form_data,params=param,headers=headers)
         elif method=='GET':
-            response=requests.get(url,params=param,headers=headers)
+            response=requests.get(url,json=json,data=form_data,params=param,headers=headers)
         ic(method,url,data,response.status_code,':',response.json())
         return response
 
@@ -126,11 +126,13 @@ class TestFastAPIRoutes(__TestFastAPIRoutesInit):
                             json_schema=schema['content'].get('application/json',0)
                             if not json_schema:
                                 form_schema=schema['content'].get('application/x-www-form-urlencoded',0)
+                                if not form_schema:
+                                    form_schema=schema['content'].get('multipart/form-data',0)
                                 schema=form_schema
                                 isfor_json=False
                             else:
                                 schema=json_schema
-
+                            print(schema)
                             schema_name=schema['schema']['$ref'].split('/')[-1]
                             datas=self.__get_field_data(schema_name=schema_name)
                             data=datas

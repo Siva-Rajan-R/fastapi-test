@@ -23,6 +23,8 @@ def generate_data(datatype,items_type:Any=None):
     
     elif datatype == 'object':
         return {"name":"siva rajan","age":18,"mark_percentage":18.9,'is_pg':False}
+    elif datatype == 'boolean':
+        return random.choice([False,True])
     
     else:
         return datatype
