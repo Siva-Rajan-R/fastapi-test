@@ -1,4 +1,2 @@
-fastapi
-icecream
 requests
 rich
