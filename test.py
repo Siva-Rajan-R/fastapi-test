@@ -17,10 +17,11 @@ class __TestFastAPIRoutesInit:
         self.headers=headers
         self.routes_tocheck=routes_tocheck
         self.routes_touncheck=routes_touncheck
+        self._is_last_route=False
 
 
 class TestFastAPIRoutes(__TestFastAPIRoutesInit):
-    #please ensure on your FastAPI app(openapi_url='/openapi.json')
+    #please ensure on your FastAPI app(openapi_url='/openapi.json'
     def __send_requests(self,method:str,path:str,data:dict,isfor_json:bool=True,isfor_params:bool=False):
         method_of_input='JSON DATA'
         headers=self.headers
@@ -64,7 +65,7 @@ class TestFastAPIRoutes(__TestFastAPIRoutesInit):
         elif method=='GET':
             response=requests.get(url,json=json,data=form_data,params=param,headers=headers)
         # ic(method,url,data,response.status_code,':',response.json())
-        log_request(method=method,path=url,data=data,status=response.status_code,response=response.text,method_of_input=method_of_input)
+        log_request(method=method,path=url,data=data,status=response.status_code,response=response.text,method_of_input=method_of_input,is_last_route=self._is_last_route)
         return response
 
 
@@ -157,6 +158,9 @@ class TestFastAPIRoutes(__TestFastAPIRoutesInit):
                                 if datatype.get('anyOf',None):
                                     datatype=datatype['anyOf'][0]
                                 data[param_name['name']]=generate_data(datatype=datatype.get('format',None) if datatype.get('format',None) else datatype.get('type',None),items_type=datatype.get('items',{'type':None})['type'])
+                        
+                        if paths[-1]==path:
+                            self._is_last_route=True
 
                         self.__send_requests(method.upper(),path,data,isfor_params=isfor_query,isfor_json=isfor_json)
                         
