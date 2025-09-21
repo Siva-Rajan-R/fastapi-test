@@ -9,29 +9,33 @@ from datetime import datetime
 
 class __TestFastAPIRoutesInit:
     #please ensure on your FastAPI app(openapi_url='/openapi.json')
-    def __init__(self,custom_inputs:CustomInputFormat={},base_url:str='http://127.0.0.1:8000/',headers:dict=None,routes_tocheck:list=[],routes_touncheck:list=[]):
-        #please ensure on your FastAPI app(openapi_url='/openapi.json')
-        self.infos=requests.get(f'{base_url}openapi.json').json()
-        self.custom_inputs=custom_inputs
+    def __init__(self,custom_input:CustomInputFormat={},base_url:str='http://127.0.0.1:8000/',headers:dict=None,routes_tocheck:list=[],routes_touncheck:list=[]):
+        self.infos=None
+        self.custom_input=custom_input
         self.base_url=base_url
         self.headers=headers
         self.routes_tocheck=routes_tocheck
         self.routes_touncheck=routes_touncheck
         self._is_last_route=False
 
+        try:
+            self.infos=requests.get(f'{base_url}openapi.json').json()
+        except Exception as e:
+            print(e)
+
+
 
 class TestFastAPIRoutes(__TestFastAPIRoutesInit):
-    #please ensure on your FastAPI app(openapi_url='/openapi.json'
     def __send_requests(self,method:str,path:str,data:dict,isfor_json:bool=True,isfor_params:bool=False):
         method_of_input='JSON DATA'
         headers=self.headers
-        if path==self.custom_inputs.get('path','') and method==self.custom_inputs.get('method',''):
-            data=self.custom_inputs['data']
-            isfor_json=self.custom_inputs['isfor_json']
-            isfor_params=self.custom_inputs['isfor_params']
-            if self.custom_inputs.get('headers',False):
-                if self.custom_inputs['headers']!={}:
-                    headers=self.custom_inputs['headers']
+        if path==self.custom_input.get('path','') and method==self.custom_input.get('method',''):
+            data=self.custom_input.get('data',{})
+            isfor_json=self.custom_input.get('isfor_json',True)
+            isfor_params=self.custom_input.get('isfor_params',False)
+            if self.custom_input.get('headers',False):
+                if self.custom_input['headers']!={}:
+                    headers=self.custom_input['headers']
 
 
         if data=={}:
@@ -55,6 +59,7 @@ class TestFastAPIRoutes(__TestFastAPIRoutesInit):
             self.base_url=self.base_url[0:-1]
 
         url=f"{self.base_url}{path}"
+        method=method.upper()
         # (f"method : {method} url : {url} data : {data} json : {json} formdata : {form_data} param : {param}")
         if method=='POST':
             response=requests.post(url,json=json,data=form_data,params=param,headers=self.headers)
@@ -119,8 +124,16 @@ class TestFastAPIRoutes(__TestFastAPIRoutesInit):
         console.print(f"\n[bold]{line}[/bold]", style="#00ff00")
 
         paths=self.routes_tocheck
-        if paths==[]:
+
+        if not self.infos:
+            print("\nPlease Make Sure, Your'e Running Fastapi Or Mention The URL On The base_url\n")
+            return
+        
+        if paths==[] and self.infos.get('paths',None):
             paths=list(self.infos['paths'].keys())
+        else:
+            print("\nPlease Make Sure On Your FastAPI ' app(openapi_url='/openapi.json') ' \n")
+            return
 
         console.print(f"\n[bold]Paths/Routes to test -> : {paths} {len(paths)} Paths/Routes",style='magenta')
 
@@ -162,12 +175,12 @@ class TestFastAPIRoutes(__TestFastAPIRoutesInit):
                         if paths[-1]==path:
                             self._is_last_route=True
 
-                        self.__send_requests(method.upper(),path,data,isfor_params=isfor_query,isfor_json=isfor_json)
+                        self.__send_requests(method,path,data,isfor_params=isfor_query,isfor_json=isfor_json)
                         
                 else:
-                    print('No route/path found')
+                    print('\nNo route/path found')
             else:
-                print('Unchecked routes :',path)
+                print('\n\nUnchecked routes :',path)
 
 if __name__=='__main__':
     test=TestFastAPIRoutes()
