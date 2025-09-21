@@ -1,5 +1,6 @@
 import random,string
 from typing import Any
+from datetime import datetime
 
 def generate_data(datatype,items_type:Any=None):
     if datatype=='string':
@@ -24,6 +25,9 @@ def generate_data(datatype,items_type:Any=None):
         return {"name":"siva rajan","age":18,"mark_percentage":18.9,'is_pg':False}
     elif datatype == 'boolean':
         return random.choice([False,True])
-    
+    elif datatype == 'date':
+        return datetime.now().date().__str__()
+    elif datatype == 'email':
+        return 'debuggers@gmail.com'
     else:
         return datatype
