@@ -61,14 +61,22 @@ class TestFastAPIRoutes(__TestFastAPIRoutesInit):
         url=f"{self.base_url}{path}"
         method=method.upper()
         # (f"method : {method} url : {url} data : {data} json : {json} formdata : {form_data} param : {param}")
-        if method=='POST':
-            response=requests.post(url,json=json,data=form_data,params=param,headers=self.headers)
-        elif method=='PUT':
-            response=requests.put(url,json=json,data=form_data,params=param,headers=headers)
-        elif method=='DELETE':
-            response=requests.delete(url,json=json,data=form_data,params=param,headers=headers)
-        elif method=='GET':
-            response=requests.get(url,json=json,data=form_data,params=param,headers=headers)
+        response=requests.request(
+            method=method,
+            url=url,
+            json=json,
+            data=form_data,
+            params=param,
+            headers=self.headers
+        )
+        # if method=='POST':
+        #     response=requests.post(url,json=json,data=form_data,params=param,headers=self.headers)
+        # elif method=='PUT':
+        #     response=requests.put(url,json=json,data=form_data,params=param,headers=headers)
+        # elif method=='DELETE':
+        #     response=requests.delete(url,json=json,data=form_data,params=param,headers=headers)
+        # elif method=='GET':
+        #     response=requests.get(url,json=json,data=form_data,params=param,headers=headers)
         # ic(method,url,data,response.status_code,':',response.json())
         log_request(method=method,path=url,data=data,status=response.status_code,response=response.text,method_of_input=method_of_input,is_last_route=self._is_last_route)
         return response
