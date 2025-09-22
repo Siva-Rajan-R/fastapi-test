@@ -130,10 +130,14 @@ class TestFastAPIRoutes(__TestFastAPIRoutesInit):
             return
         
         if paths==[] and self.infos.get('paths',None):
+
             paths=list(self.infos['paths'].keys())
-        else:
+        
+        elif paths==[]:
             print("\nPlease Make Sure On Your FastAPI ' app(openapi_url='/openapi.json') ' \n")
             return
+        
+        
 
         console.print(f"\n[bold]Paths/Routes to test -> : {paths} {len(paths)} Paths/Routes",style='magenta')
 
@@ -178,7 +182,7 @@ class TestFastAPIRoutes(__TestFastAPIRoutesInit):
                         self.__send_requests(method,path,data,isfor_params=isfor_query,isfor_json=isfor_json)
                         
                 else:
-                    print('\nNo route/path found')
+                    print(f'\nNo route/path found for : {path}')
             else:
                 print('\n\nUnchecked routes :',path)
 
